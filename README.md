@@ -1,5 +1,7 @@
 # blogging platform API assignment
 
+[Project from roadmap.sh](https://roadmap.sh/projects/blogging-platform-api)
+
 ## the goals are
 - understand what restful apis are
 - learn how to create a restful api
