@@ -1,0 +1,104 @@
+* {
+    font-family: sans-serif;
+    background-color: #222222;
+    color: #eeeeee;
+    box-sizing: border-box;
+}
+
+.wrapper {
+    margin: auto;
+    /* margin-left: 25px;
+    margin-top: 25px; */
+    width: 500px;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    padding: 20px;
+    border-left: 1px solid white;
+    height: fit-content;
+}
+
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.post-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar {
+    display: flex;
+    gap: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.leftnav {
+    display: flex;
+    gap: 10px;
+}
+
+.text-fade {
+    opacity: 50%;
+}
+
+.new-post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+    height: auto;
+}
+
+.form-content {
+    height: 100px;
+    width: 100%;
+    border-radius: 20px;
+    text-align: left;
+    overflow-wrap: scroll; /* why don't you work */
+    padding: 10px;
+}
+
+.new-post-submission {
+    border-radius: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.new-post-button {
+    cursor: pointer;
+    width: 30%;
+    
+    transition: 0.25s;
+    
+    &:hover {
+        opacity: 50%;
+    }
+}
+
+.admin-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-button {
+    display: flex;
+    border: none;
+    align-items: center;
+    padding: 5px;
+    text-align: center;
+    font-size: large;
+    cursor: pointer;
+
+    transition: 0.25s;
+
+    &:hover {
+        opacity: 50%;
+    }
+}
