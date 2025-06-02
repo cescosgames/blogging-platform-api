@@ -27,7 +27,10 @@ app.use(express.static(path.join(__dirname, 'public'))); // __dirname doesn't wo
 // --- current routes below, will move to router soon ---
 
 // backend posts route
-app.use('/api/posts', posts);
+app.use('/api/posts', (req, res, next) => {
+    // console.log('Middleware reached for /api/posts'); // just a checking middleware to make sure we are hitting our routes
+    next();
+}, posts);
 
 // frontend index route
 app.use((req, res, next) => {

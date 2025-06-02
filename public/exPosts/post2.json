@@ -1,9 +1,12 @@
 {
   "id": 2,
   "title": "My Second Blog Post",
-  "content": "This is the content of my second blog post.",
+  "content": "testing update date",
   "category": "Technology",
-  "tags": ["Tech", "Programming"],
+  "tags": [
+    "Tech",
+    "Programming"
+  ],
   "createdOn": "05/30/2025",
-  "updatedOn": "05/30/2025"
+  "updatedOn": "06/02/2025"
 }

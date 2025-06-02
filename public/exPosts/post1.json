@@ -3,7 +3,10 @@
   "title": "My First Blog Post",
   "content": "This is the content of my first blog post.",
   "category": "Technology",
-  "tags": ["Tech", "Programming"],
+  "tags": [
+    "Tech",
+    "Programming"
+  ],
   "createdOn": "05/15/2025",
-  "updatedOn": "05/15/2025"
+  "updatedOn": "06/02/2025"
 }

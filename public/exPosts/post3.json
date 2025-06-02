@@ -1,0 +1,12 @@
+{
+  "id": 3,
+  "title": "Testing tags",
+  "content": "Tag testing",
+  "category": "Art",
+  "tags": [
+    "Art",
+    "Sports"
+  ],
+  "date": "06/02/2025",
+  "updatedOn": "06/02/2025"
+}
