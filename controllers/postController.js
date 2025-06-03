@@ -51,7 +51,7 @@ export const getByTag = (req, res) => {
 
     // check if we have a category
     if(!tag) {
-        return res.status(400).json({ error: 'Category required to filter by category' });
+        return res.status(400).json({ error: 'Category required to filter by category' }); // 400 user error didn't submit category
     };
 
     // if we have a category, read the whole directory
@@ -88,14 +88,14 @@ export const createPost = (req, res) => {
 
     // check we have all the necessary information
     if(!title || !content || !category || !tags) {
-        return res.status(404).json({ error: 'Title, content, category, and at least 1 tag are required' });
+        return res.status(400).json({ error: 'Title, content, category, and at least 1 tag are required' }); // 400, client error submitting information
     }
 
     // read the directory in order to get our id
     fs.readdir(postsDir, (err, files) => {
         // check for error reading
         if(err) {
-            return res.status(500).json({ error: 'Failed to load posts directory' });
+            return res.status(500).json({ error: 'Failed to load posts directory' }); // 500 internal server error, something went wrong on my end
         };
 
         // get last post for id assignment, temporary while I set up a DB
@@ -114,7 +114,7 @@ export const createPost = (req, res) => {
             const newPost = { id, title, content, category, tags, date, updatedOn };
             const newPostPath = path.join(postsDir, `post${id}.json`); // save the path
             fs.writeFileSync(newPostPath, JSON.stringify(newPost, null, 2)); // write the json file to the path 
-            res.status(201).json(newPost); // 201 success creation
+            res.status(201).json(newPost); // 201 success creation of something
             return;
         };
 
@@ -153,7 +153,7 @@ export const updatePost = (req, res) => {
     const postPath = path.join(postsDir, `post${req.params.id}.json`); // getting the post we want to update by id
     // check if our filepath exists
     if(!fs.existsSync(postPath)) {
-        return res.status(404).json({ error: `Post with id ${id} not found` });
+        return res.status(404).json({ error: `Post with id ${id} not found` }); // 404, requested path not found
     };
 
     const MSdate = Date.now();
@@ -166,7 +166,7 @@ export const updatePost = (req, res) => {
     const updatedPost = {...JSON.parse(fs.readFileSync(postPath, 'utf-8')), ...req.body, updatedOn: newDate }; // spread the original post merge/overwrite with the request body, then update the updatedOn datestamp
     fs.writeFileSync(postPath, JSON.stringify(updatedPost, null, 2));
 
-    res.status(200).json(updatedPost);
+    res.status(200).json(updatedPost); // 200 OK status code succesfully submitted request
 };
 
 // @desc DELETE delete post
@@ -181,5 +181,5 @@ export const deletePost = (req, res) => {
     };
 
     fs.unlinkSync(postPath); // deletes our file on this path
-    res.status(200).json({ message: `Post Deleted` }); // send back a success message
+    res.status(204).json({ message: `Post Deleted` }); // 204, action was succesful and no further information needs to be supplied
 }
