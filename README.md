@@ -29,7 +29,7 @@ npm run dev
 ```
 4. Make sure you set up a test MongoDB Atlas database and connect your personal URI in your .env file, which could look like this
 ```
-PORT=5173
+PORT='your-port'
 MONGODB_URI='your-mongodb-uri'
 ```
 5. Open postman (or any similar program) and run commands to test the DB out!
