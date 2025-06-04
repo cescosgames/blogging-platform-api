@@ -1,11 +1,11 @@
-// -- temporary for getting our blog posts route --
+// -- temporary for getting our blog posts route, now moved to db.js where we call from our MongoDB directly! --
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const postsDir = path.join(__dirname, '../public/exPosts');
-// --
+// -------------------------------------------------------------------------------------------------------------
 
 // @desc GET all posts
 // @route api/posts
@@ -149,6 +149,7 @@ export const createPost = (req, res) => {
 // @desc PUT update post
 // @route api/posts/:id
 export const updatePost = (req, res) => {
+    console.log('updating post with PUT in pcontroller')
     // like getting the single post
     const postPath = path.join(postsDir, `post${req.params.id}.json`); // getting the post we want to update by id
     // check if our filepath exists

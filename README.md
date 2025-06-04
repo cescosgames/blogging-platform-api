@@ -1,8 +1,71 @@
-# blogging platform API assignment
+# Blogging Platform API (backend)
 
-[Project from roadmap.sh](https://roadmap.sh/projects/blogging-platform-api)
+This is a Node.js + Express + MongoDB [blogging platform api project, from roadmap.sh](https://roadmap.sh/projects/blogging-platform-api). This currently backend-only blogging
+API allows users to perform basic CRUD operations to a remote database.
+<br>
+<br>
 
-## the goals are
+## How it was made:
+
+**Tech used:** 
+- ExpressJS used to set up API routes for managing content
+- MongoDB for remote database 
+- dotenv for using environment variables
+- NOTE: postman was also used to facilitate testing
+
+## How To Run The Project
+
+1. Download the files onto your local environment or copy this repo and navigate into the folder you downloaded them into
+```
+cd blogging-platform-api
+```
+2. Open in your preferred IDE and install dependencies
+```
+npm install
+```
+3. In your integrated terminal, call npm run dev
+```
+npm run dev
+```
+4. Make sure you set up a test MongoDB Atlas database and connect your personal URI in your .env file, which could look like this
+```
+PORT=5173
+MONGODB_URI='your-mongodb-uri'
+```
+5. Open postman (or any similar program) and run commands to test the DB out!
+```
+// @GET all
+http://localhost:{your-port}/api/posts
+// @GET single
+http://localhost:{your-port}/api/posts/:id
+// @GET tags
+http://localhost:{your-port}/api/posts/filter?tag={your-tag}
+// @POST send with required json body:
+{
+"title": "Example",
+"content": "Example",
+"category": "Example",
+"tags": [
+    "Example",
+    "Test"
+]
+}
+http://localhost:{your-port}/api/posts
+// PUT update post by id, send with desired updated categories, min. 1 required
+http://localhost:{your-port}/api/posts/:id
+// DELETE delete post by id
+http://localhost:{your-port}/api/posts/:id
+```
+
+## Features:
+
+Following the project guidelines, this project features...
+1. Full CRUD operations; create a new post, update an existing post, delete a post, get a single post, get all posts, get posts by category
+2. Connected to Database
+
+<hr>
+
+## the goals were
 - understand what restful apis are: 
 Restful APIs are essentially a standardized way for computers to communicate with each other over the internet
 <br>
@@ -14,7 +77,7 @@ stateless responses like we have with sending back information in JSON. And fina
 <br>
 - learn about GET POST PUT PATCH and DELETE
 GET gets a resource, POST creates a resource, PUT updates a resource, DELETE deletes a resource, and PATCH (although I haven't used it) is like PUT but doesn't replace 
-the entire resource, just part of it. I'm realizing now that in my project however, I made PUT behave more like PATCH which goes against RESTFUL API structure. 
+the entire resource, just part of it. In this project however, I made PUT behave more like PATCH which goes against RESTFUL API structure. 
 <br>
 - learn about status codes and error handling in APIs
 Only used a few standard status codes of note like 200 (OK) 201 (created) 204 (no content) 400 (client error) 404 (not found) and 500 (internal server error). There are lots
@@ -24,11 +87,11 @@ of other standard/commonly used codes that can be easily found online.
 Check out the posts route and postController to see our CRUD operations!
 <br>
 - learn how to work with databases
-WIP
+Lots to learn here! But getting started is very straightforward, just need to learn the basic MongoDB commands like insertOne, findOne, etc. Lots of different things to 
+learn here however for optimal performance and such. One note, I sort of combined my controller functions with my DB functions - not great. I should separate them.
 
-## initial notes
-Feels like I learned a lot of this stuff already with the last blog assignment EXCEPT for working with remote databases. The recommendation here was to use 
-MongoDB so I think it's about time I learn. 
+## update notes (updated on:6/4/25)
+Got the backend + database set up and functioning on MongoDB Atlas! No frontend, but this is good to go otherwise! Lots of room for improvement so I'll look to improve
 
 ## Gameplan
 1. Set up the blog
@@ -36,3 +99,6 @@ MongoDB so I think it's about time I learn.
 - example blog posts for setup will be in public/exPosts/post*x*.json
 2. Set up the database
 - Brand new, need to learn!
+3. (stretch goals) Clean up the project
+- Separate database logic from controller functions
+- Set up simple frontend

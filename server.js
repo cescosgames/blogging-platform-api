@@ -26,6 +26,12 @@ app.use(express.static(path.join(__dirname, 'public'))); // __dirname doesn't wo
 
 // --- current routes below, will move to router soon ---
 
+// test route make sure postman works
+app.get('/test', (req, res) => {
+    console.log('checking test route');
+    res.status(200).json({ message: 'test route success!' });
+});
+
 // backend posts route
 app.use('/api/posts', (req, res, next) => {
     // console.log('Middleware reached for /api/posts'); // just a checking middleware to make sure we are hitting our routes

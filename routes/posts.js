@@ -3,29 +3,30 @@ import express from 'express'; // bring in express
 const router = express.Router(); // using express router to route
 // our controller
 import { getAllPosts, getSinglePost, createPost, updatePost, deletePost, getByTag  } from '../controllers/postController.js';
+import { getPostDB, getSinglePostDB, getByTagDB, createPostDB, updatePostDB, deletePostDB } from '../database/db.js';
 
 // @desc GET all posts
 // @route api/posts
-router.get('/', getAllPosts);
+router.get('/', getPostDB);
 
 // @desc GET filtered post NOTE! Must go above /:id or else it will think filter is an id 
 // @route api/posts/filter?tag=tagTitle
-router.get('/filter', getByTag); 
+router.get('/filter', getByTagDB); 
 
 // @desc GET single post 
 // @route api/posts/:id
-router.get('/:id', getSinglePost);
+router.get('/:id', getSinglePostDB);
 
 // @desc POST new post
 // @route api/posts
-router.post('/', createPost);
+router.post('/', createPostDB);
 
 // @desc PUT update post
 // @route api/posts/:id
-router.put('/:id', updatePost);
+router.put('/:id', updatePostDB);
 
 // @desc DELETE delete post
 // @route api/posts/:id
-router.delete('/:id', deletePost);
+router.delete('/:id', deletePostDB);
 
 export default router;
