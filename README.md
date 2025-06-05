@@ -108,3 +108,23 @@ closes with signals processed in server.js.
 3. (stretch goals) Clean up the project
 - Separate database logic from controller functions
 - Set up simple frontend
+
+## final structure example (ascii tree)
+project/
+|- controllers/
+|   |- postController.js # here is where we have all our CRUD logic
+|- database/
+|   |- db.js # here is where we handle our database connection/disconnection logic
+|- public # frontend and local storage for testing
+|   |- exposts # example posts for testing
+|   |- html # contains all our html
+|   |- scripts # frontend scripts
+|   |- styles # frontend css
+|- routes
+|   |- posts.js # here is where we handling our backend routes for our posts (i.e. /api/posts/:id)
+|- .env # our environment variables
+|- .gitignore # our gitignore
+|- package-lock.json
+|- package.json
+|- README.md # our readme
+|_ server.js # our main express script
