@@ -95,8 +95,9 @@ Check out the posts route and postController to see our CRUD operations!
 Lots to learn here! But getting started is very straightforward, just need to learn the basic MongoDB commands like insertOne, findOne, etc. Lots of different things to 
 learn here however for optimal performance and such. One note, I sort of combined my controller functions with my DB functions - not great. I should separate them.
 
-## update notes (updated on:6/4/25)
-Got the backend + database set up and functioning on MongoDB Atlas! No frontend, but this is good to go otherwise! Lots of room for improvement so I'll look to improve
+## update notes (updated on:6/5/25)
+Changed db.js to handle only database connection and disconnection logic and updated the postController.js to reflect that. Now connection persists through program lifetime and
+closes with signals processed in server.js.
 
 ## Gameplan
 1. Set up the blog

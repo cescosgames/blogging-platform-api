@@ -2,8 +2,7 @@
 import express from 'express'; // bring in express
 const router = express.Router(); // using express router to route
 // our controller
-import { getAllPosts, getSinglePost, createPost, updatePost, deletePost, getByTag  } from '../controllers/postController.js';
-import { getPostDB, getSinglePostDB, getByTagDB, createPostDB, updatePostDB, deletePostDB } from '../database/db.js';
+import { getPostDB, getSinglePostDB, getByTagDB, createPostDB, updatePostDB, deletePostDB } from '../controllers/postController.js';
 
 // @desc GET all posts
 // @route api/posts

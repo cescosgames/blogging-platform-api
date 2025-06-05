@@ -1,186 +1,198 @@
-// -- temporary for getting our blog posts route, now moved to db.js where we call from our MongoDB directly! --
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const postsDir = path.join(__dirname, '../public/exPosts');
-// -------------------------------------------------------------------------------------------------------------
+import { MongoClient, ObjectId } from 'mongodb'; // import our mongo client
+import dotenv from 'dotenv'; // dotenv for environment variables functions
+import { closeDB, connectToDB } from '../database/db.js'; // moving connection logic to other script
 
-// @desc GET all posts
+dotenv.config(); // load our environment variables
+
+const uri = process.env.MONGODB_URI; // from our .env file
+
+const client = new MongoClient(uri); // this function connects us to our database using our URI
+
+// @desc GET all posts from mongo database
 // @route api/posts
-export const getAllPosts = (req, res) => {
-    // read the whole directory, argument and files as arguments
-    fs.readdir(postsDir, (err, files) => {
-        // check for errors and return JSON message if error
-        if (err) {
-            return res.status(500).json({ error: 'Failed to read blog posts directory' });
-        };
+export const getPostDB = async (req, res) => {
+  console.log('getting all posts from DB');
+  try {
+      const database = await connectToDB();
+      const posts = database.collection('blog_posts'); // same as above
 
-        // otherwise, mapp over our files to get our posts
-        const posts = files.map(file => {
-            const content = fs.readFileSync(path.join(postsDir, file), 'utf-8'); // reads the file at postsdir/filename in utf-8 encoding
-            return JSON.parse(content); // return the parsed content
-        });
+      // Retrieve a single post (optionally filtered by a query)
+      const query = req.query || {}; // optional: Add filters via query params
+      const exPost = await posts.findOne(query);
 
-        res.status(200).json(posts); // return a 200 success status with all the posts
-    });
+      // if post doesn't exist
+      if (!exPost) {
+          return res.status(404).json({ message: 'Post not found' });
+      }
+
+      // Return the found post
+      return res.status(200).json(exPost);
+  } catch (error) {
+      console.error('Error getting posts:', error);
+      return res.status(500).json({ error: 'Failed to read blog posts directory' });
+  } finally {
+    //   await closeDB(); // logic moved to signals in server.js checking for SIGINT or SIGTERM upon closing program
+  }
 };
 
-// @desc GET single post 
+// @desc GET single post from mongo database
 // @route api/posts/:id
-export const getSinglePost = (req, res) => {
-    // read the posts path, posts are labelled as 'postX.json'
-    const postPath = path.join(postsDir, `post${req.params.id}.json`); // since posts are labelled as such, use request params ID to get the post you want
-    
-    // check if the post exists
-    if(!fs.existsSync(postPath)) {
-        return res.status(404).json({ error: `Post with id ${req.params.id} not found` });
-    }
+export const getSinglePostDB = async (req, res) => {
+  console.log('getting single post from DB');
+  try {
+      const database = await connectToDB();
+      const posts = database.collection('blog_posts');
 
-    const content = fs.readFileSync(postPath, 'utf-8'); // if it does exist, read the file
+      const postId = req.params.id; // convert the id param to an ObjectId the way mongoDB stores
 
-    res.status(200).json(JSON.parse(content));  // return back the single post
+      if (!ObjectId.isValid(postId)) { // check if our id is a valid ObjectId before searching
+          return res.status(400).json({ error: 'Invalid post id' });
+      }
+
+      const post = await posts.findOne({ _id: new ObjectId(postId) }); // query the database for the post by ID
+
+      if (!post) { // if our post isn't found
+          return res.status(404).json({ error: `Post with id ${postId} not found` });
+      }
+
+      return res.status(200).json(post); // otherwise success!
+  } catch (error) {
+      console.error('Error getting post:', error);
+      return res.status(500).json({ error: 'Failed to read blog posts directory' });
+  } finally {
+    //   await closeDB();
+  }
 };
 
 // @desc GET posts by category filter 
 // @route api/posts/filter?tag=tagTitle
-export const getByTag = (req, res) => {
+export const getByTagDB = async (req, res) => {
+  console.log('getting posts with tag from DB');
+  try {
+    const database = await connectToDB();
+    const posts = database.collection('blog_posts');
+
     // get the category from query params
     const tag = req.query.tag;
 
     // check if we have a category
     if(!tag) {
-        return res.status(400).json({ error: 'Category required to filter by category' }); // 400 user error didn't submit category
+        return res.status(400).json({ error: 'Tag required to filter by tag' }); // 400 user error didn't submit category
     };
 
-    // if we have a category, read the whole directory
-    fs.readdir(postsDir, (err, files) => {
-        // check for errors and return JSON message if error
-        if (err) {
-            return res.status(500).json({ error: 'Failed to read blog posts directory' });
-        };
+    const postsWithTag = await posts.find({ tags: tag }).toArray(); // query the database for the posts with tag
 
-        // otherwise, loop over our files to find any that have the relevant tag and add them to our new filteredPosts array
-        const filteredPosts = [];
-        files.forEach(file => {
-            const filePath = path.join(postsDir, file); // get each file
-            const post = JSON.parse(fs.readFileSync(filePath, 'utf-8')); // parse the json
-            if(post.tags.includes(tag)) { // if the parsed post tags has our tag
-                filteredPosts.push(post); // push the post to our filtered posts
-            }
-        });
-
-        // return the filtered posts if we have more than 1 otherwise don't
-        if(filteredPosts.length > 0) {
-            res.status(200).json(filteredPosts); // return a 200 success status with all the posts
-        } else {
-            res.status(404).json({ error: `No posts found with tag ${tag}` })
-        }
-    });
+    if (postsWithTag.length > 0) { // if our post isn't found
+        return res.status(200).json(postsWithTag); // otherwise success!
+    } else {
+        res.status(404).json({ error: `No posts found with tag ${tag}` })
+    }
+  } catch (error) {
+    console.error('Error getting posts:', error);
+    return res.status(500).json({ error: 'Failed to read blog posts directory' });
+  } finally {
+    // await closeDB();
+  }
 };
 
 // @desc POST new post
 // @route api/posts
-export const createPost = (req, res) => {
-    // get the title and content from the body of the request
-    const { title, content, category, tags } = req.body;
+export const createPostDB = async (req, res) => {
+  console.log('creating new post in DB');
 
-    // check we have all the necessary information
-    if(!title || !content || !category || !tags) {
-        return res.status(400).json({ error: 'Title, content, category, and at least 1 tag are required' }); // 400, client error submitting information
+  try {
+    const database = await connectToDB();
+    const posts = database.collection('blog_posts');
+
+    const { title, content, category, tags } = req.body; // get title, content, category, and tags from the request body
+
+    // check we have all necessary info AND check that our tags array is in fact an array
+    if (!title || !content || !category || !tags || !Array.isArray(tags)) {
+      return res.status(400).json({
+        error: 'title, content, category, and tags (in array format) are required',
+      });
     }
 
-    // read the directory in order to get our id
-    fs.readdir(postsDir, (err, files) => {
-        // check for error reading
-        if(err) {
-            return res.status(500).json({ error: 'Failed to load posts directory' }); // 500 internal server error, something went wrong on my end
-        };
+    // switching to date object instead of file system date string conversion thing I had earlier
+    const date = new Date(); // 
+    const newPost = { title, content, category, tags, createdOn: date, updatedOn: date }; // the new post
 
-        // get last post for id assignment, temporary while I set up a DB
-        const lastPost = files[files.length-1]; // get the last one
-        if(!lastPost) { // if it doesn't exit, id is 1
-            const id = 1
-            // converting millisecond date to mm/dd/yyyy
-            const MSdate = Date.now();
-            const dateObj = new Date(MSdate); // make a date object from our MSdate
-            const month = String(dateObj.getMonth() + 1).padStart(2,'0'); // months start at 0, adding 1 for human reading. padStart pads the string with another string until it reaches a given length i.e. add 0 until we reach length 2
-            const day = String(dateObj.getDate()).padStart(2,'0') // same pad as above,
-            const year = dateObj.getFullYear(); // returns YYYY
-            const date = `${month}/${day}/${year}`; // put it all together
-            const updatedOn = date;
-            // make the post json
-            const newPost = { id, title, content, category, tags, date, updatedOn };
-            const newPostPath = path.join(postsDir, `post${id}.json`); // save the path
-            fs.writeFileSync(newPostPath, JSON.stringify(newPost, null, 2)); // write the json file to the path 
-            res.status(201).json(newPost); // 201 success creation of something
-            return;
-        };
+    const result = await posts.insertOne(newPost); // use insert one to add the post to our db
 
-        // if we do have a last post
-        const lastPostPath = path.join(postsDir, lastPost);
-        // read the file to extract the ID
-        fs.readFile(lastPostPath, 'utf-8', (err, data) => {
-            try {
-                const post = JSON.parse(data); // get the post to extract the ID
-                const prevID = post.id; // extract the id
-                const id = prevID + 1;
-                // repeat the date thing from above
-                const MSdate = Date.now();
-                const dateObj = new Date(MSdate); // make a date object from our MSdate
-                const month = String(dateObj.getMonth() + 1).padStart(2,'0'); // months start at 0, adding 1 for human reading. padStart pads the string with another string until it reaches a given length i.e. add 0 until we reach length 2
-                const day = String(dateObj.getDate()).padStart(2,'0') // same pad as above,
-                const year = dateObj.getFullYear(); // returns YYYY
-                const date = `${month}/${day}/${year}`; // put it all together
-                const updatedOn = date;
-                // make the post
-                const newPost = { id, title, content, category, tags, date, updatedOn };
-                const newPostPath = path.join(postsDir, `post${id}.json`); // save the path
-                fs.writeFileSync(newPostPath, JSON.stringify(newPost, null, 2)); // write the json file to the path 
-                res.status(201).json(newPost); // 201 success creation
-            } catch (error) {
-                return res.status(500).json({ error: `Failed to find previous blog post ID` });
-            }
-        });
-    });
+    res.status(201).json({ id: result.insertedId, ...newPost }); // success! send back our inserted ID we got from mongoDB with our post
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ error: 'Failed to create post' });
+  } finally {
+    // await closeDB();
+  }
 };
 
 // @desc PUT update post
 // @route api/posts/:id
-export const updatePost = (req, res) => {
-    console.log('updating post with PUT in pcontroller')
-    // like getting the single post
-    const postPath = path.join(postsDir, `post${req.params.id}.json`); // getting the post we want to update by id
-    // check if our filepath exists
-    if(!fs.existsSync(postPath)) {
-        return res.status(404).json({ error: `Post with id ${id} not found` }); // 404, requested path not found
-    };
+export const updatePostDB = async (req, res) => {
+    console.log('updating post in DB');
 
-    const MSdate = Date.now();
-    const dateObj = new Date(MSdate); // make a date object from our MSdate
-    const month = String(dateObj.getMonth() + 1).padStart(2,'0'); // months start at 0, adding 1 for human reading. padStart pads the string with another string until it reaches a given length i.e. add 0 until we reach length 2
-    const day = String(dateObj.getDate()).padStart(2,'0') // same pad as above,
-    const year = dateObj.getFullYear(); // returns YYYY
-    const newDate = `${month}/${day}/${year}`; // put it all together
+    try {
+      const database = await connectToDB();
+      const posts = database.collection('blog_posts');
 
-    const updatedPost = {...JSON.parse(fs.readFileSync(postPath, 'utf-8')), ...req.body, updatedOn: newDate }; // spread the original post merge/overwrite with the request body, then update the updatedOn datestamp
-    fs.writeFileSync(postPath, JSON.stringify(updatedPost, null, 2));
+      const postId = req.params.id; // convert the id param to an ObjectId the way mongoDB stores
+      const { title, content, category, tags } = req.body; // get what we want to update from our request body
 
-    res.status(200).json(updatedPost); // 200 OK status code succesfully submitted request
+      if (!ObjectId.isValid(postId)) { // check if our id is a valid ObjectId before searching
+          return res.status(400).json({ error: 'Invalid post id' });
+      }
+
+      // create our blog post as an object
+      const updatedPostInfo = {};
+      if (title) updatedPostInfo.title = title; // if we have ___ update it in our object
+      if (content) updatedPostInfo.content = content; // repeat
+      if (category) updatedPostInfo.category = category; // repeat
+      if (tags) updatedPostInfo.tags = tags; // repeat
+      updatedPostInfo.updatedOn = new Date(); // remember, using built in date object now
+
+      const updatedPOst = await posts.updateOne(
+        { _id: new ObjectId(postId) }, // search by ID, why is this deprecated now? 
+        { $set: updatedPostInfo } // $set updates only specified fields, more info if you look up $set
+      );
+
+      if (!updatedPOst) { // if our post isn't found
+          return res.status(404).json({ error: `Post with id ${postId} not found` });
+      }
+
+      return res.status(200).json(updatedPOst); // otherwise success!
+  } catch (error) {
+      console.error('Error getting post:', error);
+      return res.status(500).json({ error: 'Failed to read blog posts directory' });
+  } finally {
+    //   await closeDB();
+  }
 };
 
 // @desc DELETE delete post
 // @route api/posts/:id
-export const deletePost = (req, res) => {
-    // super similar to get single post
-    const postPath = path.join(postsDir, `post${req.params.id}.json`); // getting the post we want to update by id
+export const deletePostDB = async (req, res) => {
+    console.log('deleting single post from DB');
+    try {
+        const database = await connectToDB();
+        const posts = database.collection('blog_posts'); // same as above
 
-    // check if our filepath exists
-    if(!fs.existsSync(postPath)) {
-        return res.status(404).json({ error: `Post not found` });
-    };
+        // Retrieve a single post (optionally filtered by a query)
+        const postId = req.params.id; // convert the id param to an ObjectId the way mongoDB stores
 
-    fs.unlinkSync(postPath); // deletes our file on this path
-    res.status(204).json({ message: `Post Deleted` }); // 204, action was succesful and no further information needs to be supplied
+        if (!ObjectId.isValid(postId)) { // check our object id is valid
+          return res.status(400).json({ error: 'Invalid post ID' });
+        }
+
+        const exPost = await posts.deleteOne({ _id: new ObjectId(postId) });
+
+        // Return the found post
+        return res.status(200).json({ message: `Post ${postId} deleted`}); // 200 or 204 here? we are returning a message so maybe 204 isn't appropriate but 204 tells us we have nothing left? 
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        return res.status(500).json({ error: 'Failed to read blog posts directory' });
+    } finally {
+        // await closeDB();
+    }
 }
