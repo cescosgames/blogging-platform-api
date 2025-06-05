@@ -110,6 +110,7 @@ closes with signals processed in server.js.
 - Set up simple frontend
 
 ## final structure example (ascii tree)
+```
 project/
 |- controllers/
 |   |- postController.js # here is where we have all our CRUD logic
@@ -128,3 +129,4 @@ project/
 |- package.json
 |- README.md # our readme
 |_ server.js # our main express script
+```
