@@ -16,9 +16,7 @@ export const getPostDB = async (req, res) => {
       const database = await connectToDB();
       const posts = database.collection('blog_posts'); // same as above
 
-      // Retrieve a single post (optionally filtered by a query)
-      const query = req.query || {}; // optional: Add filters via query params
-      const exPost = await posts.findOne(query);
+      const exPost = await posts.find({}).toArray(); // get all posts and put em in array
 
       // if post doesn't exist
       if (!exPost) {
@@ -31,7 +29,7 @@ export const getPostDB = async (req, res) => {
       console.error('Error getting posts:', error);
       return res.status(500).json({ error: 'Failed to read blog posts directory' });
   } finally {
-    //   await closeDB(); // logic moved to signals in server.js checking for SIGINT or SIGTERM upon closing program
+    //   await closeDB(); // logic moved to signals in server.js checking for SIGINT or SIGTERM upon closing program to leave connection open during program lifetime
   }
 };
 
